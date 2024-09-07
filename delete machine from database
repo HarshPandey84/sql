@@ -1,0 +1,31 @@
+<?php
+include "database.php";
+session_start();
+
+$machine_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+if ($machine_id <= 0) {
+    echo "Invalid machine ID.";
+    exit();
+}
+
+// Fetch shop number for redirection
+$query = "SELECT shop_no FROM machines WHERE id = $machine_id";
+$result = $conn->query($query);
+if (!$result || $result->num_rows === 0) {
+    echo "Machine not found.";
+    exit();
+}
+$machine = $result->fetch_assoc();
+
+// Delete the machine
+$delete_query = "DELETE FROM machines WHERE id = $machine_id";
+if ($conn->query($delete_query)) {
+    header("Location: machinedata.php?shop_no={$machine['shop_no']}&msg=Machine deleted successfully");
+    exit();
+} else {
+    echo "Error deleting machine: " . $conn->error;
+}
+?>
+
+<?php $conn->close(); ?>
